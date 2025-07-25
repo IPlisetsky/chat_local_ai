@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CHAT</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: black; color: white;}
+        #messages { border: 1px solid #ccc; padding: 10px; height: 300px; width: 1155px;;overflow-y: scroll; margin-bottom: 10px; }
+        input[type="text"] { width: calc(100% - 80px); padding: 8px; background-color: black; color: white;}
+        button { padding: 8px 15px; background-color: #007bff; color: rgb(255, 255, 255); border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Chat</h1>
+    <input type="text" id="usernameInput" placeholder="Digite seu nome de usuário...">
+    <div id="messages"></div>
+    <input type="text" id="messageInput" placeholder="Digite sua mensagem...">
+    <button onclick="sendMessage()">Enviar</button>
+
+    <script>
+        var socket = io();
+
+        socket.on('connect', function() {
+            console.log('Conectado ao servidor!');
+        });
+
+        socket.on('message', function(msg) {
+            var messagesDiv = document.getElementById('messages');
+            var p = document.createElement('p');
+            p.textContent = msg;
+            messagesDiv.appendChild(p);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        });
+
+        function sendMessage() {
+            var messageInput = document.getElementById('messageInput');
+            var usernameInput = document.getElementById('usernameInput');
+            var message = messageInput.value;
+            var username = usernameInput.value || 'Anônimo';
+            if (message.trim() !== '') {
+                socket.emit('message', `[${username}]: ${message}`);
+                messageInput.value = '';
+            }
+        }
+
+        document.getElementById('messageInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
+
